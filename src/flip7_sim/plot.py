@@ -49,7 +49,7 @@ def main():
 
     plot_game(game_id, con)
 
-    PLOT_DIR.mkdir(parents=True)
+    PLOT_DIR.mkdir(parents=True, exist_ok=True)
     short_id = game_id.split("-")[0]
     fig_path = PLOT_DIR / f"game_{short_id}.png"
 
