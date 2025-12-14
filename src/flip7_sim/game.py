@@ -5,12 +5,7 @@ from typing import Any, Protocol
 from random import sample, choice
 from uuid import uuid4
 import logging
-# logging.basicConfig(
-#     filename = "app.log",
-#     encoding = "utf-8",
-#     filemode = "a",
-#     level = "DEBUG"
-# )
+
 
 ######################################################################################################
 # Cards
