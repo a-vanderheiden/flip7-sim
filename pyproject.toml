@@ -1,0 +1,35 @@
+[build-system]
+requires = ["hatchling >= 1.26", "hatch-vcs"]
+build-backend = "hatchling.build"
+
+
+[project]
+name = "flip7-sim"
+authors = [
+  { name = "Andrew Vanderheiden", email = "andrewloyd19@gmail.com" },
+]
+description = "Simulation of the Flip 7 card game"
+readme = "README.md"
+requires-python = ">=3.13"
+classifiers = [
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Programming Language :: Python",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3 :: Only",
+  "Programming Language :: Python :: 3.13",
+  "Typing :: Typed",
+]
+dynamic = ["version"]
+dependencies = [
+  "matplotlib",
+  "pandas"
+  ]
+
+[project.scripts]
+flip7 = "flip7_sim.__main__:main"
+flip7_plot = "flip7_sim.plot:main"
+
+[tool.hatch]
+version.source = "vcs"
+build.hooks.vcs.version-file = "src/flip7_sim/_version.py"
