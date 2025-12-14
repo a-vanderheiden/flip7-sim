@@ -1,7 +1,6 @@
 
 from enum import Enum
-from dataclasses import dataclass, field
-from typing import Any, Protocol
+from typing import Any, Protocol, ClassVar
 from random import sample, choice
 from uuid import uuid4
 import logging
@@ -23,24 +22,34 @@ class Card(Protocol):
      - the freeze card should change the players status to frozen 
     """
     title: str
-    card_type: CardType
     value: Any
+    card_type: ClassVar[CardType]
     
     def resolve(self, **kwargs) -> None:
         """Defines how a card affects a player based on self.card_type"""
         ...
 
-@dataclass
 class NumberCard:
-    title: str
-    value: int
+
     card_type: CardType = CardType.NUMBER
+
+    def __init__(self, title:str, value:int):
+        self.title: str = title
+        self.value: int = value
 
     def __str__(self) -> str:
         return f"[{self.title}]"
     
     def __gt__(self, other):
+        """Used in sorting player hand"""
         return self.value > other.value
+
+    def __eq__(self, other):
+        """Determines membership in player.hand"""
+        if not isinstance(other, NumberCard):
+            return False
+        else:
+            return self.title == other.title
 
     def resolve(self, player, game, **kwargs) -> None:
         """Add number card to the player's hand"""
@@ -72,11 +81,13 @@ class NumberCard:
             player.hand.append(self)
             player.hand = sorted(player.hand)
 
-@dataclass
 class AddModifierCard:
-    title: str
-    value: int
+
     card_type: CardType = CardType.MODIFIER
+
+    def __init__(self, title:str, value:int):
+        self.title: str = title
+        self.value: int = value
 
     def __str__(self) -> str:
         return f"[{self.title}]"
@@ -93,11 +104,13 @@ class AddModifierCard:
         """Mmodify the input score with the value of this card"""
         return score + self.value
 
-@dataclass
 class MultModifierCard:
-    title: str
-    value: int
+
     card_type: CardType = CardType.MODIFIER
+
+    def __init__(self, title:str, value:int):
+        self.title: str = title
+        self.value: int = value
 
     def __str__(self) -> str:
         return f"[{self.title}]"
@@ -114,11 +127,13 @@ class MultModifierCard:
         """Mmodify the input score with the value of this card"""
         return score * self.value
 
-@dataclass
 class ActionCard:
-    title: str
-    value: None
+
     card_type: CardType = CardType.ACTION
+
+    def __init__(self, title:str, value:int):
+        self.title: str = title
+        self.value: int = value
 
     def __str__(self) -> str:
         return f"[{self.title}]"
@@ -147,20 +162,21 @@ class ActionCard:
 
 ######################################################################################################
 # Player and Game
-@dataclass
 class Player:
-    name: str
-    play_style: Any
-    turn: int = 0
-    round_score: int = 0
-    game_score: int = 0
-    hand: list = field(default_factory=list)
-    modifier_hand: list = field(default_factory=list)
-    action_hand: list = field(default_factory=list)
-    busted: bool = False
-    stay: bool = False
-    frozen: bool = False
-    second_chance: bool = False
+
+    def __init__(self, name: str, play_style: Any):
+        self.name: str = name
+        self.play_style: Any = play_style
+        self.turn: int = 0
+        self.round_score: int = 0
+        self.game_score: int = 0
+        self.hand: list = []
+        self.modifier_hand: list = []
+        self.action_hand: list = []
+        self.busted: bool = False
+        self.stay: bool = False
+        self.frozen: bool = False
+        self.second_chance: bool = False
 
     def is_active(self):
         """Determine if a player is active based on other statuses"""
