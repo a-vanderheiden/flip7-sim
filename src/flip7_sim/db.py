@@ -59,7 +59,7 @@ def sql_create_tables(con: sqlite3.Connection) -> None:
     cursor.execute("CREATE TABLE IF NOT EXISTS player_turns (player_id, turn_id, round_id, game_id, game_score, round_score, num_cards, hand, stay, busted, frozen, second_chance)")
 
 
-def sql_connect_to_db() -> sqlite3.Connection: 
+def sql_connect_to_db(db_path:str = DB_PATH) -> sqlite3.Connection: 
     """Initialize and connect to the sqlite database"""
 
     con = sqlite3.connect(DB_PATH)
