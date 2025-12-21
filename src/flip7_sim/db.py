@@ -1,7 +1,7 @@
 from datetime import datetime
 import sqlite3
 
-from flip7_sim import Flip7Game, Player
+# from flip7_sim import Flip7Game, Player
 
 DB_PATH = "db.sqlite3"
 
@@ -69,7 +69,7 @@ def sql_connect_to_db(db_path:str = DB_PATH) -> sqlite3.Connection:
     return con
 
 
-def sql_write_game(game:Flip7Game, con: sqlite3.Connection) -> None:
+def sql_write_game(game, con: sqlite3.Connection) -> None:
     """Log the game object"""
 
     cursor = con.cursor()
@@ -77,14 +77,14 @@ def sql_write_game(game:Flip7Game, con: sqlite3.Connection) -> None:
     cursor.execute("INSERT INTO games VALUES (?, ?)", (game.game_id, datetime.now()))
     con.commit()
 
-def sql_write_players(game:Flip7Game, con: sqlite3.Connection) -> None:
+def sql_write_players(game, con: sqlite3.Connection) -> None:
     """Write players to the database"""
     cursor = con.cursor()
     for player in game.players:
         cursor.execute("INSERT INTO players VALUES (?, ?, ?)", (player.name, game.game_id, player.play_style.style_code))
     con.commit()
 
-def sql_write_player_turn(player:Player, game:Flip7Game, con: sqlite3.Connection) -> None:
+def sql_write_player_turn(player, game, con: sqlite3.Connection) -> None:
     cursor = con.cursor()
 
     data = {
