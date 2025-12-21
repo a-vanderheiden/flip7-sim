@@ -1,6 +1,4 @@
-
-from enum import Enum
-from typing import Any, Protocol, ClassVar
+from typing import Any, Protocol
 from random import sample, choice
 from uuid import uuid4
 import logging
