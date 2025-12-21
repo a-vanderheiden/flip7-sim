@@ -22,7 +22,7 @@ def main():
 
     args = parser.parse_args()
 
-    play_flip7()
+    play_flip7(int(args.num_players) or 5)
 
     if args.figure:
         plot_game()

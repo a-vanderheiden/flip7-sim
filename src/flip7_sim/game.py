@@ -78,9 +78,9 @@ class Player:
 
 
 class Flip7Game:
-    def __init__(self):
+    def __init__(self, num_players:int):
         self.game_id: str = str(uuid4())
-        self.players: list[Player] = make_players()
+        self.players: list[Player] = make_players(num_players)
         self.active_players: list[Player] = []
         self.deck: list[Card] = build_deck()
         self.discard: list[Card] = []
@@ -221,7 +221,7 @@ def build_deck() -> list[Card]:
 
     return shuffled_deck
 
-def make_players(num_players: int = 5, styles:list[PlayerStyle] = ALL_PLAYER_STYLES) -> list[Player]:
+def make_players(num_players: int, styles:list[PlayerStyle] = ALL_PLAYER_STYLES) -> list[Player]:
     """Create a list of players for the game."""
 
     player_list = []
@@ -233,7 +233,7 @@ def make_players(num_players: int = 5, styles:list[PlayerStyle] = ALL_PLAYER_STY
     
     return player_list
 
-def play_flip7():
+def play_flip7(num_players:int = 5):
     """
     Simulate a game of Flip 7
 
@@ -255,7 +255,7 @@ def play_flip7():
 
     CON = sql_connect_to_db()
 
-    GAME = Flip7Game()
+    GAME = Flip7Game(num_players)
     sql_write_game(GAME, CON)
     sql_write_players(GAME, CON)
 
