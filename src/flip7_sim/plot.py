@@ -4,13 +4,22 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
+from pandas import DataFrame
 
 from flip7_sim.db import sql_connect_to_db
 
 PLOT_DIR = Path("plots")
 
-def get_turn_table(game_id:str, con:sqlite3.Connection):
+def get_turn_table(game_id:str, con:sqlite3.Connection) -> DataFrame:
+    """
+    Returns a dataframe where each row contains each players score after every turn for a given game.
+    
+    The table shape is:
+                        | Player 1 | Player 2 | ... | Player n |
+                        ---------------------------------------- 
+    (round_id, turn_id) |    15    |     0    | ... |     8    |
 
+    """
     df = pd.read_sql_query(f"SELECT * FROM player_turns WHERE game_id = '{game_id}'", con)
 
     score_df = df.set_index(['round_id', 'turn_id', 'player_id'])[['game_score', 'round_score']]
@@ -20,7 +29,7 @@ def get_turn_table(game_id:str, con:sqlite3.Connection):
     return running_score_df
 
 def get_last_game(con:sqlite3.Connection):
-
+    """Returns the game id for the last game recored in the db"""
     cursor = con.execute("SELECT * FROM games")
 
     last_game = cursor.fetchall()[-1]
@@ -48,6 +57,8 @@ def get_player_styles(game_id:str, con:sqlite3.Connection) -> dict[str,str]:
     return dict(cursor.fetchall())
 
 def make_summary_plot(game_id:str, con:sqlite3.Connection) -> None:
+    """Make the summary plot for the game"""
+
     df = get_turn_table(game_id, con)
 
     fig, ax = plt.subplots(1, 1, figsize=(8,4))
@@ -70,7 +81,6 @@ def make_summary_plot(game_id:str, con:sqlite3.Connection) -> None:
 
     # legend
     ax.legend(title="")
-    # handles, labeles = ax.get_legend_handles_labels()
     player_styles = get_player_styles(game_id, con)
     ax.legend(labels= [f"{name} - {player_styles[name]}" for name in player_styles] )
 
@@ -78,7 +88,11 @@ def make_summary_plot(game_id:str, con:sqlite3.Connection) -> None:
     ax.grid(axis="x")
 
 def plot_game(save_fig:bool=False):
+    """
+    Main plotting interface for flip7-sim called by the cli.
     
+    This function handles conditional logic and showing/saving the figure.
+    """
     con = sql_connect_to_db()
 
     game_id = get_last_game(con)
@@ -90,13 +104,8 @@ def plot_game(save_fig:bool=False):
         short_id = game_id.split("-")[0]
         fig_path = PLOT_DIR / f"game_{short_id}.png"
         plt.savefig(fig_path, dpi=300)
-        
+
     plt.show()
 
-def main():
-    """Plots the flip7 game of a given ID"""
-
-
-
 if __name__ == "__main__":
-    main()
+    plot_game()
