@@ -1,6 +1,7 @@
 from .game import (
     Flip7Game,
-    Player
+    Player,
+    play_flip7
 )
 
 from . import db
