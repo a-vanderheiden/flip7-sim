@@ -12,7 +12,7 @@ from flip7_sim.plot import main as plot_game
 
 def main():
 
-    parser = ArgumentParser()
+    parser = ArgumentParser(prog="flip7")
 
     parser.add_argument("-n", "--num-players")
 
