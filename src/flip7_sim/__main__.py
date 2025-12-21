@@ -11,9 +11,13 @@ from flip7_sim import play_flip7
 
 def main():
 
-    parser = ArgumentParser(prog="flip7")
+    parser = ArgumentParser(
+        prog = "flip7",
+        description = "Simulation of the Flip 7 card game",
 
-    parser.add_argument("-n", "--num-players")
+    )
+
+    parser.add_argument("-n", "--num-players", type=int, default=5)
 
     parser.add_argument("-p", "--print-logs", action="store_true")
 
@@ -21,11 +25,7 @@ def main():
 
     args = parser.parse_args()
 
-    if args.num_players:
-        play_flip7(int(args.num_players))
-    else:
-        play_flip7(5)
-
+    play_flip7(num_players=args.num_players)
 
     if args.figure:
 
