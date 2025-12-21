@@ -8,7 +8,6 @@ logging.basicConfig(
 )
 
 from flip7_sim import play_flip7
-from flip7_sim.plot import main as plot_game
 
 def main():
 
@@ -22,9 +21,15 @@ def main():
 
     args = parser.parse_args()
 
-    play_flip7(int(args.num_players) or 5)
+    if args.num_players:
+        play_flip7(int(args.num_players))
+    else:
+        play_flip7(5)
+
 
     if args.figure:
+
+        from flip7_sim.plot import main as plot_game
         plot_game()
 
 if __name__ == "__main__":
