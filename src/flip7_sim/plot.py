@@ -77,21 +77,26 @@ def make_summary_plot(game_id:str, con:sqlite3.Connection) -> None:
     # Other
     ax.grid(axis="x")
 
-
-def main():
-    """Plots the flip7 game of a given ID"""
-
+def plot_game(save_fig:bool=False):
+    
     con = sql_connect_to_db()
 
     game_id = get_last_game(con)
 
     make_summary_plot(game_id, con)
 
-    PLOT_DIR.mkdir(parents=True, exist_ok=True)
-    short_id = game_id.split("-")[0]
-    fig_path = PLOT_DIR / f"game_{short_id}.png"
+    if save_fig:
+        PLOT_DIR.mkdir(parents=True, exist_ok=True)
+        short_id = game_id.split("-")[0]
+        fig_path = PLOT_DIR / f"game_{short_id}.png"
+        plt.savefig(fig_path, dpi=300)
+        
+    plt.show()
 
-    plt.savefig(fig_path, dpi=300)
+def main():
+    """Plots the flip7 game of a given ID"""
+
+
 
 if __name__ == "__main__":
     main()

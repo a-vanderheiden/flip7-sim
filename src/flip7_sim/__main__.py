@@ -8,6 +8,7 @@ logging.basicConfig(
 )
 
 from flip7_sim import play_flip7
+from flip7_sim.plot import plot_game, PLOT_DIR
 
 def main():
 
@@ -17,20 +18,21 @@ def main():
 
     )
 
-    parser.add_argument("-n", "--num-players", type=int, default=5)
+    parser.add_argument("-n", "--num-players", default=5, type=int)
 
     parser.add_argument("-p", "--print-logs", action="store_true")
 
-    parser.add_argument("-f", "--figure", action="store_true")
+    parser.add_argument("-s", "--save-figure", action="store_true")
+
+    parser.add_argument("--suppress-figure", action="store_true")
 
     args = parser.parse_args()
 
     play_flip7(num_players=args.num_players)
 
-    if args.figure:
+    if not args.suppress_figure:
+        plot_game(save_fig=args.save_figure)
 
-        from flip7_sim.plot import main as plot_game
-        plot_game()
 
 if __name__ == "__main__":
     main()
