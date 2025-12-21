@@ -5,3 +5,4 @@ from .game import (
 )
 
 from . import db
+from . import plot

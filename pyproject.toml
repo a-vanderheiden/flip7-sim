@@ -33,7 +33,6 @@ dev = [
 
 [project.scripts]
 flip7 = "flip7_sim.__main__:main"
-flip7_plot = "flip7_sim.plot:main"
 
 [tool.hatch]
 version.source = "vcs"

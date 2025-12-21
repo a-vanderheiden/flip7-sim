@@ -47,7 +47,7 @@ def get_player_styles(game_id:str, con:sqlite3.Connection) -> dict[str,str]:
     
     return dict(cursor.fetchall())
 
-def plot_game(game_id:str, con:sqlite3.Connection) -> None:
+def make_summary_plot(game_id:str, con:sqlite3.Connection) -> None:
     df = get_turn_table(game_id, con)
 
     fig, ax = plt.subplots(1, 1, figsize=(8,4))
@@ -83,12 +83,9 @@ def main():
 
     con = sql_connect_to_db()
 
-    if len(sys.argv) > 1:
-        game_id = sys.argv[1]
-    else:
-        game_id = get_last_game(con)
+    game_id = get_last_game(con)
 
-    plot_game(game_id, con)
+    make_summary_plot(game_id, con)
 
     PLOT_DIR.mkdir(parents=True, exist_ok=True)
     short_id = game_id.split("-")[0]

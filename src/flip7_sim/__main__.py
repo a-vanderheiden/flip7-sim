@@ -8,6 +8,7 @@ logging.basicConfig(
 )
 
 from flip7_sim import play_flip7
+from flip7_sim.plot import main as plot_game
 
 def main():
 
@@ -23,7 +24,8 @@ def main():
 
     play_flip7()
 
-
+    if args.figure:
+        plot_game()
 
 if __name__ == "__main__":
     main()
