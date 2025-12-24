@@ -302,10 +302,15 @@ def play_flip7(num_players:int = 5):
                 # Stop round if player gets 7 cards
                 if len(player.hand) == 7:
                     break
-                    
-                # TODO: player can choose to stay or remain active
 
+                # Stop rounds if player's potential game score exceeds 200
+                if player.game_score + player.round_score > GAME.win_score:
+                    break
+
+            # Assess if current round needs more turns; if not, break else, rebuild active player list
             if any([len(player.hand) == 7 for player in GAME.active_players]):
+                break
+            elif any([p.game_score + p.round_score >= GAME.win_score for p in GAME.active_players]):
                 break
             else:
                 GAME.active_players = [player for player in GAME.players if player.is_active()]
@@ -316,8 +321,8 @@ def play_flip7(num_players:int = 5):
         for player in GAME.players:
 
             player.update_game_score()
-            player.round_reset(GAME)
             logging.info(f"{player.name} Summary: round {player.round_score:03d}   game {player.game_score:03d}   hand {[c.value for c in player.hand] or '[busted]'}")
+            player.round_reset(GAME)
 
     logging.info(f"--- GAME OVER ---")
     winner = sorted(GAME.players, key=lambda p: p.game_score)[-1]
