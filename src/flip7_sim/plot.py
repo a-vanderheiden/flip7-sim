@@ -24,7 +24,7 @@ def get_turn_table(game_id:str, con:sqlite3.Connection) -> DataFrame:
 
     score_df = df.set_index(['round_id', 'turn_id', 'player_id'])[['game_score', 'round_score']]
     score_df["running_score"] = score_df["game_score"] + score_df["round_score"]
-    running_score_df = score_df['running_score'].unstack('player_id')
+    running_score_df = score_df['running_score'].unstack('player_id').ffill()
 
     return running_score_df
 
