@@ -4,7 +4,7 @@ logging.basicConfig(
     filename = "flip7-sim.log",
     encoding = "utf-8",
     filemode = "a",
-    level = "DEBUG"
+    level = "INFO"
 )
 
 from flip7_sim import play_flip7
