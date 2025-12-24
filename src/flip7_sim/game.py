@@ -248,11 +248,6 @@ def play_flip7(num_players:int = 5):
         is a number card that is already in the player's hand, that player busted
     """
 
-    # DB_NAME = "db.db"
-    # CON = sqlite3.connect(DB_NAME)
-    # sql_register_sqlite_converters()
-    # sql_create_db(CON)
-
     CON = sql_connect_to_db()
 
     GAME = Flip7Game(num_players)
