@@ -178,7 +178,7 @@ class ShayneToppStyle:
         
         return freeze_target
     
-class ThreeAndOutStyle(ShayneToppStyle):
+class ThreeAndOutStyle():
     """This style stops taking more cards after they have any 3 number cards"""
 
     style_code: str = "3&O"
@@ -193,16 +193,28 @@ class ThreeAndOutStyle(ShayneToppStyle):
         return len(me.hand) < 3
     
     def who_to_draw_three(self, game:Flip7Game) -> Player:
-        """Always take the draw three"""
+        """Take the draw 3 if you have no cards. Otherwise, choose another player at random"""
 
         me = [player for player in game.players if player.name == self.player_name][0]
 
-        draw3_target = me
+        other_players = [player for player in game.players if player.name != self.player_name]
 
-        if len(me.hand) >= 3:
-            draw3_target = choice(game.active_players)
+        if len(me.hand) == 0:
+            return me
+        else:
+            return choice(other_players)
         
-        return draw3_target
+    def who_to_freeze(self, game:Flip7Game) -> Player:
+        """Freeze the top threat to the player getting to draw again"""
+        
+        freeze_target = [player for player in game.players if player.name == self.player_name][0]
+
+        other_players = [player for player in game.active_players if player.name != self.player_name]
+
+        if other_players:
+            freeze_target = sorted(other_players, key=lambda x: x.round_score)[-1]
+        
+        return freeze_target
 
 ALL_PLAYER_STYLES = [ShayneToppStyle, ThreeAndOutStyle]
 
