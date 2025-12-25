@@ -139,6 +139,21 @@ class FreezeActionCard:
         `player` here decides who to apply the freeze to based on their play style.
         """
 
-        target = player.who_to_freeze()
+        target = player.who_to_freeze(game)
 
         target.frozen = True
+
+class SecondChanceActionCard:
+
+    card_type: CardType = CardType.ACTION
+    title: str = "2chance"
+    value: str = "2chance"
+
+    def __str__(self) -> str:
+        return f"[{self.title}]"
+    
+    def resolve(self, player, game) -> None:
+        """
+        Applies the second_chance status to the player who drew the card
+        """
+        player.second_chance = True
