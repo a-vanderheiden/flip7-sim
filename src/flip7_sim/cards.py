@@ -123,35 +123,22 @@ class MultModifierCard:
         """Mmodify the input score with the value of this card"""
         return score * self.value
 
-class ActionCard:
+class FreezeActionCard:
 
     card_type: CardType = CardType.ACTION
-
-    def __init__(self, title:str, value:int):
-        self.title: str = title
-        self.value: int = value
+    title: str = "freeze"
+    value: str = "freeze"
 
     def __str__(self) -> str:
         return f"[{self.title}]"
     
     def resolve(self, player, game) -> None:
         """
-        Applies the Action to the player
-        
-        Action Cards:
+        Applies the frozen status to a selected player. 
 
-            Draw 3 - player draws three cards
-            Freeze - player is now inactive
-            Second Chance - if a player draws a duplicate card, that card is discarded and the player does not bust
+        `player` here decides who to apply the freeze to based on their play style.
         """
 
-        if self.title == "Draw3":
-            player.draw()
-            player.draw()
-            player.draw()
-        
-        if self.title == "Freeze":
-            player.active = False
+        target = player.who_to_freeze()
 
-        if self.title == "SecondChance":
-            player.second_chance = True
+        target.frozen = True
