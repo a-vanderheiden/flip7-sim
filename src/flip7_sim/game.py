@@ -75,6 +75,19 @@ class Player:
             "action_cards": [str(c) for c in self.action_hand]
         }
         return all_cards
+    
+    def draw_again(self, game) -> bool:
+        """Use self.play_style to determine if the player draws again"""
+        return self.play_style.draw_again(game)
+    
+    def who_to_freeze(self, game):
+        """Use self.play_style to determine who to freeze"""
+        return self.play_style.who_to_freeze(game)
+    
+    def who_to_draw_three(self, game):
+        """Use self.play_style to determine who make draw three cards"""
+        return self.play_style.who_to_draw_three(game)
+
 
 
 class Flip7Game:
@@ -273,7 +286,7 @@ def play_flip7(num_players:int = 5):
                 player.turn += 1
                 logging.info(f"{player.name} turn {player.turn}")
 
-                if player.play_style.draw_again(GAME):
+                if player.draw_again(GAME):
                     
                     drawn_card = GAME.draw_card()
                     logging.info(f"{player.name} drew a {drawn_card.title}")
