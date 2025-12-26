@@ -3,7 +3,7 @@ from random import sample, choice
 from uuid import uuid4
 import logging
 
-from .cards import Card, NumberCard, MultModifierCard, AddModifierCard
+from .cards import Card, NumberCard, MultModifierCard, AddModifierCard, FreezeActionCard
 from .db import sql_connect_to_db, sql_write_game, sql_write_players, sql_write_player_turn
 
 ######################################################################################################
@@ -149,6 +149,10 @@ class PlayerStyle(Protocol):
         """Determines who the player will freeze"""
         ...
 
+    def who_to_give_2chance(self, game:Flip7Game) -> Player | None:
+        """Determines who will receive the second chance"""
+        ...
+
 class ShayneToppStyle:
     """This style ALWAYS goes for it. More cards, more better"""
 
@@ -163,7 +167,6 @@ class ShayneToppStyle:
     
     def who_to_draw_three(self, game:Flip7Game) -> Player:
         """Always take the draw three"""
-
         return [player for player in game.players if player.name == self.player_name][0]
 
     def who_to_freeze(self, game:Flip7Game) -> Player:
@@ -177,6 +180,19 @@ class ShayneToppStyle:
             freeze_target = sorted(other_players, key=lambda x: x.round_score)[-1]
         
         return freeze_target
+    
+    def who_to_give_2chance(self, game:Flip7Game) -> Player | None:
+        """Give the second chance to yourself, then a random other player, then discard"""
+
+        me = [player for player in game.players if player.name == self.player_name][0]
+        players_wo_2chance = [player for player in game.active_players if not player.second_chance]
+
+        if me in players_wo_2chance:
+            return me
+        if players_wo_2chance:
+            return choice(players_wo_2chance)
+        else:
+            return None
     
 class ThreeAndOutStyle():
     """This style stops taking more cards after they have any 3 number cards"""
@@ -215,6 +231,21 @@ class ThreeAndOutStyle():
             freeze_target = sorted(other_players, key=lambda x: x.round_score)[-1]
         
         return freeze_target
+    
+    def who_to_give_2chance(self, game:Flip7Game) -> Player | None:
+        """Give the second chance to yourself, then a random other player, then discard"""
+
+        me = [player for player in game.players if player.name == self.player_name][0]
+        players_wo_2chance = [player for player in game.active_players if not player.second_chance]
+
+        if me in players_wo_2chance:
+            return me
+        if players_wo_2chance:
+            return choice(players_wo_2chance)
+        else:
+            return None
+
+
 
 ALL_PLAYER_STYLES = [ShayneToppStyle, ThreeAndOutStyle]
 
@@ -240,7 +271,9 @@ def build_deck() -> list[Card]:
     for val in add_modifier_values:
         deck.append(AddModifierCard(f"+{val}", val))
 
-    # TODO: Add action cards
+    # Add action cards
+    for i in range(3):
+        deck.append(FreezeActionCard())
     
     shuffled_deck = sample(deck, k=len(deck))
 
