@@ -140,8 +140,10 @@ class FreezeActionCard:
         """
 
         target = player.who_to_freeze(game)
-
         target.frozen = True
+        target.action_hand.append(self)
+        game.active_players.remove(target)
+        logging.info(f"{target.name} is frozen ")
 
 class SecondChanceActionCard:
 
@@ -156,4 +158,11 @@ class SecondChanceActionCard:
         """
         Applies the second_chance status to the player who drew the card
         """
-        player.second_chance = True
+        target = player.who_to_give_2chance(game)
+        if target:
+            target.second_chance = True
+            target.action_hand.append(self)
+            logging.info(f"{player.name} now has a Second Chance")
+        else:
+            game.discard.append(self)
+            logging.info(f"Second Chance discarded; all active players have Second Chance")
