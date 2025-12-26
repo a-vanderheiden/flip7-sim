@@ -3,7 +3,7 @@ from random import sample, choice
 from uuid import uuid4
 import logging
 
-from .cards import Card, NumberCard, MultModifierCard, AddModifierCard, FreezeActionCard
+from .cards import Card, NumberCard, MultModifierCard, AddModifierCard, FreezeActionCard, SecondChanceActionCard
 from .db import sql_connect_to_db, sql_write_game, sql_write_players, sql_write_player_turn
 
 ######################################################################################################
@@ -87,6 +87,10 @@ class Player:
     def who_to_draw_three(self, game):
         """Use self.play_style to determine who make draw three cards"""
         return self.play_style.who_to_draw_three(game)
+    
+    def who_to_give_2chance(self, game):
+        """Use self.player to determine who will receive the second chance card"""
+        return self.play_style.who_to_give_2chance(game)
 
 
 
@@ -274,6 +278,7 @@ def build_deck() -> list[Card]:
     # Add action cards
     for i in range(3):
         deck.append(FreezeActionCard())
+        deck.append(SecondChanceActionCard())
     
     shuffled_deck = sample(deck, k=len(deck))
 

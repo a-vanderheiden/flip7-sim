@@ -57,7 +57,12 @@ class NumberCard:
             if player.second_chance:
                 logging.debug(f"{player.name} had a second chance; {self.title} discarded")
                 game.discard.append(self)
+                game.discard.append(
+                    player.action_hand.pop(player.action_hand.index(SecondChanceActionCard()))
+                )
                 player.second_chance = False
+                logging.debug(f"{player.name} action hand: {player.action_hand}")
+                return None
             else:
                 player.busted = True
                 logging.info(f"{player.name} busted")
@@ -153,6 +158,13 @@ class SecondChanceActionCard:
 
     def __str__(self) -> str:
         return f"[{self.title}]"
+    
+    def __eq__(self, other):
+        """Determines membership in player.action_hand"""
+        if not isinstance(other, SecondChanceActionCard):
+            return False
+        else:
+            return self.title == other.title
     
     def resolve(self, player, game) -> None:
         """
