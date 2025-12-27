@@ -34,7 +34,7 @@ class Player:
         score = sum(c.value for c in self.hand)
 
         if len(self.hand) == 7:
-            logging.info(f"{self.name} flipped 7 and gained 35 bonus points!")
+            logging.debug(f"{self.name} flipped 7 and gained 35 bonus points!")
             score += 35 # should get this from game object?
 
         for card in self.modifier_hand:
@@ -113,10 +113,10 @@ class Flip7Game:
         """
 
         try:
-            logging.debug(f"Attempting to draw from the Deck (n={len(self.deck)})")
+            logging.debug(f" - GAME {self.game_id.split("-")[0]} - ROUND {self.round_num}: Attempting to draw from the Deck (n={len(self.deck)})")
             drawn_card = self.deck.pop()
         except IndexError:
-            logging.info(f"Deck empty, reshuffling Discard pile (n={len(self.discard)})")
+            logging.info(f" - GAME {self.game_id.split("-")[0]} - ROUND {self.round_num}: Deck empty, reshuffling Discard pile (n={len(self.discard)})")
             self.deck = sample(self.discard, k=len(self.discard))
             self.discard = []
             drawn_card = self.deck.pop()
@@ -317,14 +317,14 @@ def play_flip7(num_players:int = 5):
     sql_write_game(GAME, CON)
     sql_write_players(GAME, CON)
 
-    logging.info(f"--- BEGIN GAME {GAME.game_id} ---")
+    logging.info(f" - GAME {GAME.game_id.split("-")[0]}: BEGIN GAME ")
 
     # Start Game 
     while all([player.game_score < GAME.win_score for player in GAME.players]):
 
         # Start Round
         GAME.round_num += 1
-        logging.info(f"--- STARTING ROUND {GAME.round_num} ---")
+        logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num}: STARTING ROUND")
     
         GAME.active_players = [player for player in GAME.players if player.is_active()]
 
@@ -334,12 +334,12 @@ def play_flip7(num_players:int = 5):
 
                 # Start Turn
                 player.turn += 1
-                logging.info(f"{player.name} turn {player.turn}")
+                logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: turn {player.turn} start")
 
                 if player.draw_again(GAME):
                     
                     drawn_card = GAME.draw_card()
-                    logging.info(f"{player.name} drew a {drawn_card.title}")
+                    logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: drew a {drawn_card.title}")
 
                     # Resolve card based on type
                     drawn_card.resolve(player = player, game = GAME)
@@ -349,10 +349,8 @@ def play_flip7(num_players:int = 5):
                 # Update round score 
                 player.update_round_score()
 
-                logging.info(f"{player.name} action hand: {player.hand_string(player.action_hand)}")
-                logging.info(f"{player.name} modifier hand: {player.hand_string(player.modifier_hand)}")
-                logging.info(f"{player.name} hand: {player.hand_string(player.hand)}")
-                logging.debug(f"{player.name} round score is now {player.round_score}")
+                logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: hand A: {player.hand_string(player.action_hand)} M: {player.hand_string(player.modifier_hand)} N: {player.hand_string(player.hand)}")
+                logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: round score is now {player.round_score}")
                 
                 # Write player score to db
                 sql_write_player_turn(player, GAME, CON)
@@ -373,19 +371,19 @@ def play_flip7(num_players:int = 5):
             else:
                 GAME.active_players = [player for player in GAME.players if player.is_active()]
 
-        logging.info(f"Round {GAME.round_num}: Complete")
+        logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num}: Round Complete")
 
         # Update player status for next round
         for player in GAME.players:
 
             player.update_game_score()
-            logging.info(f"{player.name} Summary: round {player.round_score:03d}   game {player.game_score:03d}   hand {[c.value for c in player.hand] or '[busted]'}")
+            logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: Score Summary: round {player.round_score:03d}   game {player.game_score:03d}   hand {[c.value for c in player.hand] or '[busted]'}")
             player.round_reset(GAME)
 
-    logging.info(f"--- GAME OVER ---")
+    logging.info(f" - GAME {GAME.game_id.split("-")[0]}: GAME OVER")
     winner = sorted(GAME.players, key=lambda p: p.game_score)[-1]
-    logging.info(f"{winner.name} won with {winner.game_score} points!")
+    logging.info(f" - GAME {GAME.game_id.split("-")[0]}: {winner.name} won with {winner.game_score} points!")
 
-    logging.info(f"Game Summary:")
+    logging.info(f" - GAME {GAME.game_id.split("-")[0]}: Game Summary:")
     for player in GAME.players:
-        logging.info(f"{player.name}: {player.game_score}")
+        logging.info(f" - GAME {GAME.game_id.split("-")[0]}: {player.name}: {player.game_score}")

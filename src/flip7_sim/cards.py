@@ -52,20 +52,20 @@ class NumberCard:
 
         # Check to see if player busted
         if self in player.hand:
-            logging.debug(f"{player.name} drew duplicate card")
+            logging.debug(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: drew duplicate card")
 
             if player.second_chance:
-                logging.debug(f"{player.name} had a second chance; {self.title} discarded")
+                logging.debug(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: had a second chance; {self.title} discarded")
                 game.discard.append(self)
                 game.discard.append(
                     player.action_hand.pop(player.action_hand.index(SecondChanceActionCard()))
                 )
                 player.second_chance = False
-                logging.debug(f"{player.name} action hand: {player.action_hand}")
+                logging.debug(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: action hand: {player.action_hand}")
                 return None
             else:
                 player.busted = True
-                logging.info(f"{player.name} busted")
+                logging.info(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: busted")
 
                 game.discard.append(self)
                 game.discard.extend(player.hand)
@@ -148,7 +148,7 @@ class FreezeActionCard:
         target.frozen = True
         target.action_hand.append(self)
         game.active_players.remove(target)
-        logging.info(f"{target.name} is frozen ")
+        logging.info(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: is frozen ")
 
 class SecondChanceActionCard:
 
@@ -174,7 +174,7 @@ class SecondChanceActionCard:
         if target:
             target.second_chance = True
             target.action_hand.append(self)
-            logging.info(f"{player.name} now has a Second Chance")
+            logging.info(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: now has a Second Chance")
         else:
             game.discard.append(self)
-            logging.info(f"Second Chance discarded; all active players have Second Chance")
+            logging.info(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: Second Chance discarded; all active players have Second Chance")
