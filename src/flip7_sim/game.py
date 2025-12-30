@@ -84,9 +84,9 @@ class Player:
         """Use self.play_style to determine who to freeze"""
         return self.play_style.who_to_freeze(game)
     
-    def who_to_draw_three(self, game):
+    def who_to_flip_three(self, game):
         """Use self.play_style to determine who make draw three cards"""
-        return self.play_style.who_to_draw_three(game)
+        return self.play_style.who_to_flip_three(game)
     
     def who_to_give_2chance(self, game):
         """Use self.player to determine who will receive the second chance card"""
@@ -145,7 +145,7 @@ class PlayerStyle(Protocol):
         """Determines if the player will draw again"""
         ...
 
-    def who_to_draw_three(self, game:Flip7Game) -> Player:
+    def who_to_flip_three(self, game:Flip7Game) -> Player:
         """Determines who the player will choose for the Draw 3"""
         ...
 
@@ -169,7 +169,7 @@ class ShayneToppStyle:
         """Always draw again"""
         return True
     
-    def who_to_draw_three(self, game:Flip7Game) -> Player:
+    def who_to_flip_three(self, game:Flip7Game) -> Player:
         """Always take the draw three"""
         return [player for player in game.players if player.name == self.player_name][0]
 
@@ -212,7 +212,7 @@ class ThreeAndOutStyle():
 
         return len(me.hand) < 3
     
-    def who_to_draw_three(self, game:Flip7Game) -> Player:
+    def who_to_flip_three(self, game:Flip7Game) -> Player:
         """Take the draw 3 if you have no cards. Otherwise, choose another player at random"""
 
         me = [player for player in game.players if player.name == self.player_name][0]
