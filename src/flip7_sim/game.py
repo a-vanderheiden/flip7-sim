@@ -3,7 +3,7 @@ from random import sample, choice
 from uuid import uuid4
 import logging
 
-from .cards import Card, NumberCard, MultModifierCard, AddModifierCard, FreezeActionCard, SecondChanceActionCard
+from .cards import Card, NumberCard, MultModifierCard, AddModifierCard, FreezeActionCard, SecondChanceActionCard, Flip3ActionCard
 from .db import sql_connect_to_db, sql_write_game, sql_write_players, sql_write_player_turn
 
 ######################################################################################################
@@ -280,6 +280,7 @@ def build_deck() -> list[Card]:
     for i in range(3):
         deck.append(FreezeActionCard())
         deck.append(SecondChanceActionCard())
+        deck.append(Flip3ActionCard())
     
     shuffled_deck = sample(deck, k=len(deck))
 
