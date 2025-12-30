@@ -216,12 +216,14 @@ class ThreeAndOutStyle():
 
         me = [player for player in game.players if player.name == self.player_name][0]
 
-        other_players = [player for player in game.players if player.name != self.player_name]
+        other_players = [player for player in game.active_players if player.name != self.player_name]
 
         if len(me.hand) == 0:
             return me
-        else:
+        elif other_players:
             return choice(other_players)
+        else:
+            return me
         
     def who_to_freeze(self, game:Flip7Game) -> Player:
         """Freeze the top threat to the player getting to draw again"""
