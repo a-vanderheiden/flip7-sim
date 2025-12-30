@@ -170,7 +170,7 @@ class ShayneToppStyle:
     
     def who_to_flip_three(self, game:Flip7Game) -> Player:
         """Always take the flip three"""
-        return [player for player in game.players if player.name == self.player_name][0]
+        return [player for player in game.active_players if player.name == self.player_name][0]
 
     def who_to_freeze(self, game:Flip7Game) -> Player:
         """Freeze the top threat to the player getting to draw again"""
