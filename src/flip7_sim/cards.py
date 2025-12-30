@@ -198,9 +198,9 @@ class Flip3ActionCard:
         """
         Prepends the player 3 times to the active player list
         """
-        target = player.who_to_flip3(game)
+        target = player.who_to_flip_three(game)
         
         for _i in range(3):
-            game.active_players.insert(target, 0)
+            game.active_players.insert(0, target)
 
         logging.info(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: given the Flip 3")
