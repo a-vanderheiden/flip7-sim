@@ -178,3 +178,29 @@ class SecondChanceActionCard:
         else:
             game.discard.append(self)
             logging.info(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: Second Chance discarded; all active players have Second Chance")
+
+class Flip3ActionCard:
+    card_type: CardType = CardType.ACTION
+    title: str = "flip3"
+    value: str = "flip3"
+
+    def __str__(self) -> str:
+        return f"[{self.title}]"
+    
+    def __eq__(self, other):
+        """Determines membership in player.action_hand"""
+        if not isinstance(other, Flip3ActionCard):
+            return False
+        else:
+            return self.title == other.title
+    
+    def resolve(self, player, game) -> None:
+        """
+        Prepends the player 3 times to the active player list
+        """
+        target = player.who_to_flip3(game)
+        
+        for _i in range(3):
+            game.active_players.insert(target, 0)
+
+        logging.info(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: given the Flip 3")
