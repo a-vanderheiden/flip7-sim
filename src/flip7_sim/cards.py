@@ -75,7 +75,6 @@ class NumberCard:
                 player.hand = []
                 player.modifier_hand = [] 
                 player.action_hand = []
-                player.active = False
 
         # Add card to player hand
         if not player.busted:
@@ -195,11 +194,11 @@ class Flip3ActionCard:
     
     def resolve(self, player, game) -> None:
         """
-        Prepends the player 3 times to the active player list
+        Prepends the player 3 times to the draw order list
         """
         target = player.who_to_flip_three(game)
         
         for _i in range(3):
             game.draw_order.insert(0, target)
-
+        game.discard.append(self)
         logging.info(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: gave the {self.title} to {target.name}")

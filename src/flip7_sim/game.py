@@ -98,7 +98,6 @@ class Flip7Game:
     def __init__(self, num_players:int):
         self.game_id: str = str(uuid4())
         self.players: list[Player] = make_players(num_players)
-        self.active_players: list[Player] = []
         self.draw_order: list[Player] = []
         self.deck: list[Card] = build_deck()
         self.discard: list[Card] = []
@@ -170,25 +169,25 @@ class ShayneToppStyle:
     
     def who_to_flip_three(self, game:Flip7Game) -> Player:
         """Always take the flip three"""
-        return [player for player in game.active_players if player.name == self.player_name][0]
+        return [player for player in game.players if player.name == self.player_name][0]
 
     def who_to_freeze(self, game:Flip7Game) -> Player:
         """Freeze the top threat to the player getting to draw again"""
-        
-        freeze_target = [player for player in game.players if player.name == self.player_name][0]
 
-        other_players = [player for player in game.active_players if player.name != self.player_name]
+        active_players = [player for player in game.players if player.is_active()]
+
+        other_players = [player for player in active_players if player.name != self.player_name]
 
         if other_players:
-            freeze_target = sorted(other_players, key=lambda x: x.round_score)[-1]
-        
-        return freeze_target
+            return sorted(other_players, key=lambda x: x.round_score)[-1]
+        else:
+            return [player for player in active_players if player.name == self.player_name][0]
     
     def who_to_give_2chance(self, game:Flip7Game) -> Player | None:
         """Give the second chance to yourself, then a random other player, then discard"""
 
         me = [player for player in game.players if player.name == self.player_name][0]
-        players_wo_2chance = [player for player in game.active_players if not player.second_chance]
+        players_wo_2chance = list(set([player for player in game.draw_order if not player.second_chance]))
 
         if me in players_wo_2chance:
             return me
@@ -216,7 +215,7 @@ class ThreeAndOutStyle():
 
         me = [player for player in game.players if player.name == self.player_name][0]
 
-        other_players = [player for player in game.active_players if player.name != self.player_name]
+        other_players = list(set([player for player in game.draw_order if player.name != self.player_name]))
 
         if len(me.hand) == 0:
             return me
@@ -230,7 +229,7 @@ class ThreeAndOutStyle():
         
         freeze_target = [player for player in game.players if player.name == self.player_name][0]
 
-        other_players = [player for player in game.active_players if player.name != self.player_name]
+        other_players = list(set([player for player in game.draw_order if player.name != self.player_name]))
 
         if other_players:
             freeze_target = sorted(other_players, key=lambda x: x.round_score)[-1]
@@ -241,7 +240,7 @@ class ThreeAndOutStyle():
         """Give the second chance to yourself, then a random other player, then discard"""
 
         me = [player for player in game.players if player.name == self.player_name][0]
-        players_wo_2chance = [player for player in game.active_players if not player.second_chance]
+        players_wo_2chance = list(set([player for player in game.draw_order if not player.second_chance]))
 
         if me in players_wo_2chance:
             return me
@@ -328,10 +327,10 @@ def play_flip7(num_players:int = 5):
         GAME.round_num += 1
         logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num}: STARTING ROUND")
     
-        GAME.active_players = [player for player in GAME.players if player.is_active()]
-        logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num}: active players: {[p.name for p in GAME.active_players]}")
+        # GAME.active_players = [player for player in GAME.players if player.is_active()]
+        # logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num}: active players: {[p.name for p in GAME.active_players]}")
 
-        GAME.draw_order = [player for player in GAME.active_players]
+        GAME.draw_order = [player for player in GAME.players if player.is_active()]
         logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num}: draw order: {[p.name for p in GAME.draw_order]}")
 
 
