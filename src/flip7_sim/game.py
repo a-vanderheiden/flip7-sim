@@ -99,13 +99,13 @@ class Flip7Game:
         self.game_id: str = str(uuid4())
         self.players: list[Player] = make_players(num_players)
         self.active_players: list[Player] = []
+        self.draw_order: list[Player] = []
         self.deck: list[Card] = build_deck()
         self.discard: list[Card] = []
         self.win_score: int = 200
         self.flip7_bonus: int = 35
         self.round_num = 0
 
-        pass
     
     def draw_card(self):
         """
@@ -315,7 +315,7 @@ def play_flip7(num_players:int = 5):
 
     CON = sql_connect_to_db()
 
-    GAME = Flip7Game(num_players)
+    GAME = Flip7Game(num_players=num_players)
     sql_write_game(GAME, CON)
     sql_write_players(GAME, CON)
 
@@ -329,49 +329,62 @@ def play_flip7(num_players:int = 5):
         logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num}: STARTING ROUND")
     
         GAME.active_players = [player for player in GAME.players if player.is_active()]
+        logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num}: active players: {[p.name for p in GAME.active_players]}")
 
-        while GAME.active_players:
+        GAME.draw_order = [player for player in GAME.active_players]
+        logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num}: draw order: {[p.name for p in GAME.draw_order]}")
+
+
+        while GAME.draw_order:
             
-            for player in GAME.active_players:
+            player = GAME.draw_order.pop(0)
 
-                # Start Turn
-                player.turn += 1
-                logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: turn {player.turn} start")
+            # Start Turn
+            player.turn += 1
+            logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: turn {player.turn} start")
 
-                if player.draw_again(GAME):
-                    
-                    drawn_card = GAME.draw_card()
-                    logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: drew a {drawn_card.title}")
-
-                    # Resolve card based on type
-                    drawn_card.resolve(player = player, game = GAME)
-                else:
-                    player.stay = True
-
-                # Update round score 
-                player.update_round_score()
-
-                logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: hand A: {player.hand_string(player.action_hand)} M: {player.hand_string(player.modifier_hand)} N: {player.hand_string(player.hand)}")
-                logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: round score is now {player.round_score}")
+            if player.draw_again(GAME):
                 
-                # Write player score to db
-                sql_write_player_turn(player, GAME, CON)
+                drawn_card = GAME.draw_card()
+                logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: drew a {drawn_card.title}")
 
-                # Stop round if player gets 7 cards
-                if len(player.hand) == 7:
-                    break
-
-                # Stop rounds if player's potential game score exceeds 200
-                if player.game_score + player.round_score > GAME.win_score:
-                    break
-
-            # Assess if current round needs more turns; if not, break else, rebuild active player list
-            if any([len(player.hand) == 7 for player in GAME.active_players]):
-                break
-            elif any([p.game_score + p.round_score >= GAME.win_score for p in GAME.active_players]):
-                break
+                # Resolve card based on type
+                drawn_card.resolve(player = player, game = GAME)
             else:
-                GAME.active_players = [player for player in GAME.players if player.is_active()]
+                player.stay = True
+                logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: decided to stay")
+
+
+            # Update round score 
+            player.update_round_score()
+
+            logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: hand {{A: {player.hand_string(player.action_hand)} M: {player.hand_string(player.modifier_hand)} N: {player.hand_string(player.hand)}}}")
+            logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: round score is now {player.round_score}")
+            
+            # Write player score to db
+            sql_write_player_turn(player, GAME, CON)
+
+            # Stop round if player gets 7 cards
+            if len(player.hand) == 7:
+                break
+
+            # Stop rounds if player's potential game score exceeds 200
+            if player.game_score + player.round_score > GAME.win_score:
+                break
+
+            logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: turn complete")
+            
+            # Manage the round draw order based on player status
+            if player.is_active() and not player in GAME.draw_order:
+                GAME.draw_order.append(player)
+                logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: added back to the draw order")
+            
+            for p in GAME.draw_order:
+                if not p.is_active():
+                    GAME.draw_order.remove(p)
+                    logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: {p.name} removed from draw order")
+
+            logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num} - PLAYER {player.name}: Draw Order: {[p.name for p in GAME.draw_order]}")
 
         logging.info(f" - GAME {GAME.game_id.split("-")[0]} - ROUND {GAME.round_num}: Round Complete")
 
@@ -383,6 +396,7 @@ def play_flip7(num_players:int = 5):
             player.round_reset(GAME)
 
     logging.info(f" - GAME {GAME.game_id.split("-")[0]}: GAME OVER")
+
     winner = sorted(GAME.players, key=lambda p: p.game_score)[-1]
     logging.info(f" - GAME {GAME.game_id.split("-")[0]}: {winner.name} won with {winner.game_score} points!")
 

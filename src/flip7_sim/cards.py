@@ -47,7 +47,7 @@ class NumberCard:
         else:
             return self.title == other.title
 
-    def resolve(self, player, game, **kwargs) -> None:
+    def resolve(self, player, game) -> None:
         """Add number card to the player's hand"""
 
         # Check to see if player busted
@@ -147,8 +147,7 @@ class FreezeActionCard:
         target = player.who_to_freeze(game)
         target.frozen = True
         target.action_hand.append(self)
-        game.active_players.remove(target)
-        logging.info(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: is frozen ")
+        logging.info(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: froze {target.name} ")
 
 class SecondChanceActionCard:
 
@@ -201,6 +200,6 @@ class Flip3ActionCard:
         target = player.who_to_flip_three(game)
         
         for _i in range(3):
-            game.active_players.insert(0, target)
+            game.draw_order.insert(0, target)
 
-        logging.info(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: given the Flip 3")
+        logging.info(f" - GAME {game.game_id.split("-")[0]} - ROUND {game.round_num} - PLAYER {player.name}: gave the {self.title} to {target.name}")
