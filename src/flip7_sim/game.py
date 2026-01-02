@@ -34,8 +34,8 @@ class Player:
         score = sum(c.value for c in self.hand)
 
         if len(self.hand) == 7:
-            logging.debug(f"{self.name} flipped 7 and gained 35 bonus points!")
-            score += 35 # should get this from game object?
+            logging.debug(f"{self.name} flipped 7 and gained 15 bonus points!")
+            score += 15 # should get this from game object?
 
         for card in self.modifier_hand:
             score = card.modify_score(score)
