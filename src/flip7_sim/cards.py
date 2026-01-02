@@ -101,7 +101,7 @@ class AddModifierCard:
         player.modifier_hand = sorted(player.modifier_hand)
 
     def modify_score(self, score):
-        """Mmodify the input score with the value of this card"""
+        """Modify the input score with the value of this card"""
         return score + self.value
 
 class MultModifierCard:
@@ -124,7 +124,7 @@ class MultModifierCard:
         player.modifier_hand = sorted(player.modifier_hand)
     
     def modify_score(self, score):
-        """Mmodify the input score with the value of this card"""
+        """Modify the input score with the value of this card"""
         return score * self.value
 
 class FreezeActionCard:
